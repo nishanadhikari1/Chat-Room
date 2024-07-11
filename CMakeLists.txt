@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Add subdirectories
 add_subdirectory(client)
-
+add_subdirectory(server)

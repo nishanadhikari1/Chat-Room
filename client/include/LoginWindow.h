@@ -2,11 +2,14 @@
 #define LOGINWINDOW_H
 
 #include <gtkmm.h>
-
-class LoginWindow : public Gtk::Window {
+#include "ClientGUI.h"
+class LoginWindow : public Gtk::Box {
 public:
     LoginWindow();
     virtual ~LoginWindow();
+
+    // Signal to indicate login success
+    sigc::signal<void> signal_login_success();
 
 protected:
     // Signal handlers
@@ -24,6 +27,9 @@ protected:
 
     // Sub-division box
     Gtk::Box m_SubBox; // This will hold the username, IP address, port, and connect button
+
+    // Signal
+    sigc::signal<void> m_signal_login_success;
 };
 
 #endif // LOGINWINDOW_H

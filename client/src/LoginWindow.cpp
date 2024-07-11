@@ -54,7 +54,7 @@ void LoginWindow::on_button_connect_clicked()
 {
     std::string username = m_EntryUsername.get_text();
     std::string ip_address = m_EntryIPAddress.get_text();
-    std::string port = m_EntryPort.get_text();
+    int port = std::stoi(m_EntryPort.get_text());
 
     std::cout << "Username: " << username << std::endl;
     std::cout << "IP Address: " << ip_address << std::endl;
