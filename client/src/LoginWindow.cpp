@@ -1,4 +1,5 @@
-#include "LoginWindow.h"
+#include "../include/LoginWindow.h"
+#include "../include/ClientGUI.h"
 #include <iostream>
 
 LoginWindow::LoginWindow()
@@ -6,9 +7,7 @@ LoginWindow::LoginWindow()
       m_SubBox(Gtk::ORIENTATION_VERTICAL)
 {
 
-    set_title("Login");
     set_border_width(10);
-    set_default_size(800, 800);
 
     // Initialize and add the sub-box to the main VBox
     m_VBox.pack_start(m_SubBox);
@@ -42,7 +41,7 @@ LoginWindow::LoginWindow()
     // Connect button signal
     m_ButtonConnect.signal_clicked().connect(sigc::mem_fun(*this, &LoginWindow::on_button_connect_clicked));
 
-    add(m_VBox);
+    pack_start(m_VBox);
 
     show_all_children();
 }
@@ -60,9 +59,14 @@ void LoginWindow::on_button_connect_clicked()
     std::cout << "Username: " << username << std::endl;
     std::cout << "IP Address: " << ip_address << std::endl;
     std::cout << "Port: " << port << std::endl;
-
-
-    //Details to connect to server....
-
-    
+    // You can now use these details to connect to the server
+    // Emit the login success signal
+    m_signal_login_success.emit();
 }
+
+sigc::signal<void> LoginWindow::signal_login_success()
+{
+    return m_signal_login_success;
+}
+
+
