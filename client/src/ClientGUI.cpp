@@ -18,7 +18,6 @@ ClientGUI::ClientGUI()
   m_ClientListBox(Gtk::ORIENTATION_VERTICAL),
   m_TextBox(Gtk::ORIENTATION_VERTICAL)
 {
-
    /*----------GUI COMPONENTS-----------*/
    // Create the MenuBar
     auto menu_bar = Gtk::manage(new Gtk::MenuBar());
