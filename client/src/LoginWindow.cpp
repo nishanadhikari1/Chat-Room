@@ -110,18 +110,18 @@ LoginWindow::~LoginWindow()
 void LoginWindow::on_button_connect_clicked()
 {
     std::string username = m_EntryUsername.get_text();
-    std::string ip_address = m_EntryIPAddress.get_text();
+    std::string server_ip = m_EntryIPAddress.get_text();
     int port = std::stoi(m_EntryPort.get_text());
 
     std::cout << "Username: " << username << std::endl;
-    std::cout << "IP Address: " << ip_address << std::endl;
+    std::cout << "IP Address: " << server_ip << std::endl;
     std::cout << "Port: " << port << std::endl;
     // You can now use these details to connect to the server
     // Emit the login success signal
-    m_signal_login_success.emit();
+    m_signal_login_success.emit(username, server_ip, port);
 }
 
-sigc::signal<void> LoginWindow::signal_login_success()
+sigc::signal<void, const std::string&, const std::string&, int> LoginWindow::signal_login_success()
 {
     return m_signal_login_success;
 }

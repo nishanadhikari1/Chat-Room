@@ -84,7 +84,9 @@ void Server::accept_clients()
 void Server::handle_client(int client_socket, int id)
 {
     char name[MAX_LEN], str[MAX_LEN];
-    int bytes_received = recv(client_socket, name, sizeof(name), 0);
+    memset(name, 0, sizeof(name)); // Clear buffer before using it
+    memset(str, 0, sizeof(str)); // Clear buffer before using it
+    int bytes_received = recv(client_socket, name, (sizeof(name)-1), 0);
     if (bytes_received <= 0)
     {
         close(client_socket);
@@ -93,32 +95,40 @@ void Server::handle_client(int client_socket, int id)
     set_name(id, name);
 
     std::string welcome_message = std::string(name) + " has joined";
-    broadcast_message("#NULL", id);
-    broadcast_message(id, id);
+    // broadcast_message("#NULL", id);
+    // broadcast_message(id, id);
     broadcast_message(welcome_message, id);
     shared_print(color(id) + welcome_message + def_col);
+
+    //broadcast the updated clientList
+    broadcast_client_list();
 
     while (true)
     {
         bytes_received = recv(client_socket, str, sizeof(str), 0);
-        if (bytes_received <= 0)
-            break;
-        if (strcmp(str, "#exit") == 0)
-        {
-            std::string message = std::string(name) + " has left";
-            broadcast_message("#NULL", id);
-            broadcast_message(id, id);
-            broadcast_message(message, id);
-            shared_print(color(id) + message + def_col);
+        if (bytes_received == 0){
+            std::string left_message = std::string(name) + " has left";
+            // broadcast_message("#NULL", id);
+            // broadcast_message(id, id);
+            broadcast_message(left_message, id);
+            shared_print(color(id) + left_message + def_col);
             end_connection(id);
+            //boradcast clientlist
+            broadcast_client_list();
             break;
         }
-        broadcast_message(std::string(name), id);
-        broadcast_message(id, id);
-        broadcast_message(std::string(str), id);
+        if(bytes_received<0){
+            perror("recieve error: ");
+        }
+
+        // broadcast_message(std::string(name), id);
+        // broadcast_message(id, id);
+
+        str[bytes_received] = '\0'; // Null terminate
+        std::string sent_message = std::string(name) + ": "+ std::string(str);
+        broadcast_message(sent_message, id);
         shared_print(color(id) + name + " : " + def_col + str);
     }
-    close(client_socket);
 }
 
 void Server::set_name(int id, const char* name)
@@ -172,7 +182,7 @@ void Server::broadcast_message(int num, int sender_id)
 void Server::end_connection(int id)
 {
     std::lock_guard<std::mutex> guard(clients_mtx);
-    auto it = std::remove_if(clients.begin(), clients.end(), [id](const Terminal& client) {
+    auto it = std::remove_if(clients.begin(), clients.end(), [id](const client& client) {
         return client.id == id;
     });
     if (it != clients.end())
@@ -187,4 +197,24 @@ std::string Server::color(int code)
 {
     return colors[code % NUM_COLORS];
 }
+
+std::string Server::get_client_list(){
+    std::lock_guard<std::mutex> guard(clients_mtx);
+    std::string client_list = "#USERLIST"; //special identifier for client list
+    for (const auto& client : clients)
+    {
+        client_list += "\n" + client.name;
+    }
+    return client_list;
+}
+
+void Server::broadcast_client_list()
+{
+    std::string client_list = get_client_list();
+    broadcast_message(client_list, -1); //-1 will never match any client id
+    
+}
+
+
+
 

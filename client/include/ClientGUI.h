@@ -7,21 +7,36 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <netinet/in.h>
+#include <atomic>
 
 class ClientGUI : public Gtk::Box {
 public:
         ClientGUI();
         virtual ~ClientGUI();
-        void Connect_to_server(const std::string &ip, const std::string &port, const std::string &username);
-        void Send_messages(const std::string &message);
-        void Recv_messages();
+        void Start_Client();
+        void Connect_to_server();
+        void disconnect_from_server();
+        void Send_messages(int client_socket, const std::string& message);
+        void Recv_messages(int client_socket);
+        void setUserName(const std::string& userName);
+        void setServerIP(const std::string& serverIP);
+        void setPort(int Port);
+
+private:
+    int client_socket;
+    std::string username;
+    std::string server_ip;
+    int port;
+    std::thread thread_recv;
+    std::atomic<bool> is_running;
+    std::atomic_bool stop_recv_thread = false;
+
+    struct sockaddr_in client;  //ipv4 scokaddr struct for client
+    bool exitflag;
+    // std::mutex chat_mutex; //for chat buffer
 
 protected:
-    int client_sockfd;
-    std::string username;
-    std::thread thread_send, thread_recv;
-    std::mutex chat_mutex; //for chat buffer I think
-
     //Gui components
     Gtk::Box m_MainBox;
     Gtk::MenuBar m_Menu;
@@ -39,8 +54,7 @@ protected:
     //ClientListBox Items
     Gtk::Box m_ClientListBox;
     Gtk::Box *InfoBox = Gtk::manage(new Gtk::Box());
-    Gtk::Label *Online = Gtk::manage(new Gtk::Label());
-    Gtk::Label *OnlineNum = Gtk::manage(new Gtk::Label());
+    Gtk::Label *OnlineUsersCount = Gtk::manage(new Gtk::Label());
 
     //Tree model columns
     class ModelColumns : public Gtk::TreeModel::ColumnRecord{
@@ -55,12 +69,15 @@ protected:
     Gtk::TreeView m_ClientTreeView;
 
     //function to add add item(userName) to liststore(ClientTreeModel)
-    void add_userName(const Glib::ustring &userName);
+    void add_userNameToList(const Glib::ustring &userName);
+    void update_client_list(const std::string& client_list);
 
     void on_send_button_clicked();
     void on_connect_button_clicked();
     void update_chat_display(const Glib::ustring& message);
-
+    void update_online_count(int num);
+    void On_Quit_Clicked();
+    int count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_store);
 };
 
-#endif //CLIENTGUI_H
+#endif //CLIENTGUI

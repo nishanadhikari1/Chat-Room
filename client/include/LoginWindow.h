@@ -9,7 +9,7 @@ public:
     virtual ~LoginWindow();
 
     // Signal to indicate login success
-    sigc::signal<void> signal_login_success();
+    sigc::signal<void, const std::string&, const std::string&, int> signal_login_success();
 
 protected:
     // Signal handlers
@@ -31,7 +31,7 @@ protected:
     Gtk::Box m_SubBox; // This will hold the username, IP address, port, and connect button
 
     // Signal
-    sigc::signal<void> m_signal_login_success;
+    sigc::signal<void, const std::string&, const std::string&, int > m_signal_login_success;
 };
 
 #endif // LOGINWINDOW_H

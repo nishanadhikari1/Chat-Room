@@ -2,21 +2,22 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include<sys/select.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include<sstream>
 
-#define PORT "2222" // the port client will be connecting to
-
-#define MAXDATASIZE 100 // max number of bytes we can get at once
+#define MAX_LEN 200 // max number of bytes we can get at once
 
 ClientGUI::ClientGUI()
 : m_SendButton("Send"),
   m_MainBox(Gtk::ORIENTATION_VERTICAL),
   m_ClientListBox(Gtk::ORIENTATION_VERTICAL),
-  m_TextBox(Gtk::ORIENTATION_VERTICAL)
+  m_TextBox(Gtk::ORIENTATION_VERTICAL),
+  is_running(false),
+  exitflag(false)
 {
    /*----------GUI COMPONENTS-----------*/
    // Create the MenuBar
@@ -58,6 +59,8 @@ ClientGUI::ClientGUI()
     m_ChatDisplay.set_valign(Gtk::ALIGN_FILL);
     m_ChatDisplay.set_hexpand(true);
     m_ChatDisplay.set_vexpand(true);
+    m_ChatDisplay.set_editable(false);
+    m_ChatDisplay.set_cursor_visible(false);
 
     //Create a TextBuffer(chatBuffer)
     m_ChatBuffer = Gtk::TextBuffer::create();
@@ -93,10 +96,7 @@ ClientGUI::ClientGUI()
     //for client list box
     m_ClientListBox.pack_start(*InfoBox, Gtk::PACK_SHRINK);
     InfoBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-    InfoBox->pack_start(*Online,Gtk::PACK_SHRINK);
-    InfoBox->pack_start(*OnlineNum, Gtk::PACK_SHRINK);
-    Online->set_text("Online: ");
-    OnlineNum->set_text("1");
+    InfoBox->pack_start(*OnlineUsersCount,Gtk::PACK_SHRINK);
 
     //create the tree Model
     m_ClientTreeModel = Gtk::ListStore::create(m_Columns);
@@ -105,9 +105,6 @@ ClientGUI::ClientGUI()
 
     //Append a column(for users) without title
     m_ClientTreeView.append_column("",m_Columns.col_name);
-    add_userName("Roshan");
-    add_userName("Nishan");
-    add_userName("Prajwal");
 
     //hide the column headers
     m_ClientTreeView.set_headers_visible(false);
@@ -129,22 +126,132 @@ ClientGUI::ClientGUI()
     pack_start(m_MainBox);
 
     show_all_children();
-
-    /*--------------------------------*/
-
-    //Stream Client Logic 
     
-
 };
 
 ClientGUI::~ClientGUI(){
+    disconnect_from_server();
+}
+
+//Start Client 
+void ClientGUI::Start_Client(){
+    if((client_socket=socket(AF_INET,SOCK_STREAM,0))==-1){
+        perror("scoket: ");
+        exit(-1);
+    }
+    std::cout<<"Created Socket successfuly"<<std::endl;
+
+    //struct sockaddr_in client;  //ipv4 scokaddr struct for client
+    client.sin_family=AF_INET; //ipv4
+    client.sin_port = htons(port); //Port number of server
+    // client.sin_addr.s_addr= inet_addr(server_ip.c_str()); // ip address of server 
+    if((inet_pton(AF_INET, server_ip.c_str(), &(client.sin_addr)))<+0){
+        perror("inet pton: ");
+        close(client_socket);
+        exit(-1);
+    }
+    memset(&client.sin_zero, 0, sizeof(client.sin_zero));
+
+    Connect_to_server();
+
+    send(client_socket, username.c_str(), username.length(), 0); //send the name of client to server after connecting 
+
+    //start receive thread 
+    thread_recv = std::thread(&ClientGUI::Recv_messages, this, client_socket);
+
+    is_running = true;
 
 }
 
+void ClientGUI::Connect_to_server(){
+    if((connect(client_socket, (struct sockaddr*)&client, sizeof(struct sockaddr_in)))==-1){
+        perror("connect: ");
+        exit(-1);
+    }
+}
+
+//send messages 
+void ClientGUI::Send_messages(int client_socket, const std::string& message){
+    send(client_socket,message.c_str(),message.length(),0);
+}
+
+void ClientGUI::Recv_messages(int client_socket){
+    char recv_buffer[MAX_LEN];//recv_buffer for holding broadcasted list when it comes
+    while(!stop_recv_thread){
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        FD_SET(client_socket, &read_fds);
+
+        struct timeval timeout;
+        timeout.tv_sec = 1; // 1 second timeout
+        timeout.tv_usec = 0;
+
+        int activity = select(client_socket + 1, &read_fds, nullptr, nullptr, &timeout);
+        
+        if (activity < 0) {
+            perror("select error");
+            continue; // Handle error as needed
+        }
+
+        if (activity == 0) {
+            // Timeout occurred, check the stop condition
+            continue;
+        }
+
+        if (FD_ISSET(client_socket, &read_fds)) {
+        memset(recv_buffer, 0, sizeof(recv_buffer)); //clear buffer before each recieve
+        int bytes_received = recv(client_socket, recv_buffer, (sizeof(recv_buffer)), 0); //client list recv
+
+        if (bytes_received <= 0) {
+            if (bytes_received == 0) {
+                std::cout << "connection closed" << std::endl;
+            } else {
+                perror("receive error in client: ");
+            }
+            is_running = false;
+            break;
+        }
+        recv_buffer[bytes_received] = '\0'; //terminate the c style string
+        std::string message(recv_buffer); //convert to std string
+
+        if (message.find("#USERLIST") == 0) {
+            // clientlist update
+            update_client_list(message.substr(9)); // Remove the "#USERLIST" prefix
+            int online_users = count_online_users(m_ClientTreeModel);
+            update_online_count(online_users);
+
+        }
+        else{
+
+        //updaate the chat display with the recieved message
+        update_chat_display(Glib::ustring(message));
+        }
+    }
+}
+}
+
 //add online users in treeView
-void ClientGUI::add_userName(const Glib::ustring &userName){
+void ClientGUI::add_userNameToList(const Glib::ustring &userName){
     Gtk::TreeModel::Row row = *(m_ClientTreeModel->append());
     row[m_Columns.col_name] = userName;
+}
+
+//update clientlist in client tree view
+void ClientGUI::update_client_list(const std::string& client_list){
+    //clear the existing list
+    m_ClientTreeModel->clear();
+
+    //split the list to get users
+    std::istringstream ss(client_list); //isringstream treat string like input stream like std::cin for console
+    std::string userName;
+
+    while (std::getline(ss, userName)) {
+        if (!userName.empty()) {
+            // Add each username to the TreeView
+
+            add_userNameToList(Glib::ustring(userName));
+        }
+    }
 }
 
 //update the text buffer with message
@@ -155,5 +262,42 @@ void ClientGUI::update_chat_display(const Glib::ustring& message){
 //action for send button clicked
 void ClientGUI::on_send_button_clicked(){
     Glib::ustring message = m_MessageEntry.get_text();
-    update_chat_display(message);
+    update_chat_display("You: " +message);
+    Send_messages(client_socket, std::string(message));
+}
+
+void ClientGUI::setUserName(const std::string& userName){
+    this->username = userName;
+}
+
+void ClientGUI::setServerIP(const std::string& serverIP){
+    this->server_ip = serverIP;
+}
+
+void ClientGUI::setPort(int Port){
+    this->port = Port;
+}
+
+void ClientGUI::disconnect_from_server() {
+    stop_recv_thread = true; // Signal the thread to stop
+
+    if (thread_recv.joinable()) {
+        thread_recv.join(); // Wait for the thread to finish
+    }
+
+    close(client_socket); // Close the socket
+    std::cout << "disconnected" << std::endl;
+}
+
+// count online users
+int ClientGUI::count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_store) {
+    int count = 0;
+    for (auto i = user_list_store->children().begin(); i != user_list_store->children().end(); ++i) {
+        ++count;
+    }
+    return count;
+}
+
+void ClientGUI::update_online_count(int num){
+    OnlineUsersCount->set_text("Online: "+std::to_string(num));
 }

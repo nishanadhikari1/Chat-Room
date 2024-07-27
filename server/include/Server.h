@@ -10,7 +10,7 @@
 #define MAX_LEN 200
 #define NUM_COLORS 6
 
-struct Terminal
+struct client
 {
     int id;
     std::string name;
@@ -29,7 +29,7 @@ private:
     int server_socket;
     int seed;
     int port;
-    std::vector<Terminal> clients;
+    std::vector<client> clients;
     std::string def_col;
     std::string colors[NUM_COLORS];
     std::mutex cout_mtx, clients_mtx;
@@ -40,6 +40,8 @@ private:
     void shared_print(const std::string& str, bool endLine = true);
     void broadcast_message(const std::string& message, int sender_id);
     void broadcast_message(int num, int sender_id);
+    void broadcast_client_list();
+    std::string get_client_list();
     void end_connection(int id);
     std::string color(int code);
 };
