@@ -19,7 +19,6 @@ ClientGUI::ClientGUI()
   is_running(false),
   exitflag(false)
 {
-
    /*----------GUI COMPONENTS-----------*/
    // Create the MenuBar
     auto menu_bar = Gtk::manage(new Gtk::MenuBar());

@@ -1,18 +1,52 @@
 #include "../include/LoginWindow.h"
 #include "../include/ClientGUI.h"
 #include <iostream>
+#include <gtkmm/cssprovider.h>
+#include <gtkmm/stylecontext.h>
+#include <gdkmm/screen.h>
 
 LoginWindow::LoginWindow()
     : m_VBox(Gtk::ORIENTATION_VERTICAL),
-      m_SubBox(Gtk::ORIENTATION_VERTICAL)
+      m_SubBox(Gtk::ORIENTATION_VERTICAL),
+      m_ButtonBox(Gtk::ORIENTATION_HORIZONTAL) // Initialize button box
 {
+    // Load the CSS file
+    auto cssProvider = Gtk::CssProvider::create();
+    try
+    {
+        cssProvider->load_from_path("../client/src/LoginWindow.css");
+    }
+    catch (const Gtk::CssProviderError& e)
+    {
+        std::cerr << "Error loading CSS file: " << e.what() << std::endl;
+    }
 
-    set_border_width(10);
+    // Get the default screen and add the CSS provider
+    auto screen = Gdk::Screen::get_default();
+    auto styleContext = Gtk::StyleContext::create();
+    styleContext->add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
-    // Initialize and add the sub-box to the main VBox
-    m_VBox.pack_start(m_SubBox);
+    // Set the CSS ID for this window
+    set_name("login_window");
 
-    // Set properties for the sub-box
+    set_border_width(0);
+    // set_default_size(400, 500); // Set a default size for the window
+
+    // Configure and add the VBox
+    m_VBox.set_halign(Gtk::ALIGN_CENTER); // Center VBox horizontally
+    m_VBox.set_valign(Gtk::ALIGN_CENTER); // Center VBox vertically
+    m_VBox.set_size_request(400, 500); // Set size for VBox
+
+    // Add title
+    m_TitleLabel.set_text("Connect & Chat");
+    m_TitleLabel.set_name("title_label"); // Optional: set CSS class for styling
+    m_TitleLabel.set_margin_bottom(20);
+
+    m_VBox.pack_start(m_TitleLabel, Gtk::PACK_SHRINK); // Add title to VBox
+
+    // Configure the sub-box
+    m_SubBox.set_border_width(0);
+    m_SubBox.set_name("sub_box");
     m_SubBox.set_size_request(400, 300); // Set size to 400x300
     m_SubBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
     m_SubBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
@@ -34,14 +68,38 @@ LoginWindow::LoginWindow()
     m_SubBox.pack_start(m_LabelPort, Gtk::PACK_SHRINK);
     m_SubBox.pack_start(m_EntryPort, Gtk::PACK_SHRINK);
 
-    m_SubBox.pack_start(m_ButtonConnect);
+    // Initialize and configure the button box
+    m_ButtonBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
+    m_ButtonBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
+    m_ButtonBox.set_spacing(10); // Add spacing inside button box
+
     m_ButtonConnect.set_label("Connect");
+    m_ButtonConnect.set_name("button_connect");
+    m_ButtonConnect.set_size_request(100, 30); // Set desired size for the button
     m_ButtonConnect.set_margin_top(10); // Add top margin to the button for spacing
 
-    // Connect button signal
+    // Set text alignment for entry boxes
+    m_EntryUsername.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
+    m_EntryIPAddress.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
+    m_EntryPort.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
+
+    // CSS classes for input boxes
+    m_EntryUsername.get_style_context()->add_class("entry");
+    m_EntryIPAddress.get_style_context()->add_class("entry");
+    m_EntryPort.get_style_context()->add_class("entry");
+
     m_ButtonConnect.signal_clicked().connect(sigc::mem_fun(*this, &LoginWindow::on_button_connect_clicked));
 
-    pack_start(m_VBox);
+    m_ButtonBox.pack_start(m_ButtonConnect, Gtk::PACK_SHRINK); // Ensure button is packed last
+
+    // Add the button box to the sub-box
+    m_SubBox.pack_start(m_ButtonBox, Gtk::PACK_SHRINK); // Ensure button box is packed last
+
+    // Add the sub-box to the VBox
+    m_VBox.pack_start(m_SubBox, Gtk::PACK_EXPAND_WIDGET); // Ensure VBox expands
+
+    // Finally, add the VBox to the window
+    pack_start(m_VBox, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
 }
@@ -68,5 +126,3 @@ sigc::signal<void, const std::string&, const std::string&, int> LoginWindow::sig
 {
     return m_signal_login_success;
 }
-
-

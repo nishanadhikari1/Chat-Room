@@ -17,9 +17,11 @@ protected:
 
     // Child widgets
     Gtk::Box m_VBox;
+    Gtk::Label m_TitleLabel;
     Gtk::Entry m_EntryUsername;
     Gtk::Entry m_EntryIPAddress;
     Gtk::Entry m_EntryPort;
+    Gtk::Box m_ButtonBox;
     Gtk::Button m_ButtonConnect;
     Gtk::Label m_LabelUsername;
     Gtk::Label m_LabelIPAddress;
