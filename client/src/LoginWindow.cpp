@@ -30,7 +30,6 @@ LoginWindow::LoginWindow()
     set_name("login_window");
 
     set_border_width(0);
-    // set_default_size(400, 500); // Set a default size for the window
 
     // Configure and add the VBox
     m_VBox.set_halign(Gtk::ALIGN_CENTER); // Center VBox horizontally
@@ -47,10 +46,10 @@ LoginWindow::LoginWindow()
     // Configure the sub-box
     m_SubBox.set_border_width(0);
     m_SubBox.set_name("sub_box");
-    m_SubBox.set_size_request(400, 300); // Set size to 400x300
+    m_SubBox.set_size_request(400, 300); 
     m_SubBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
     m_SubBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
-    m_SubBox.set_spacing(10); // Add spacing between elements
+    m_SubBox.set_spacing(10); // 
 
     // Add elements to the sub-box
     m_LabelUsername.set_text("Username:");
