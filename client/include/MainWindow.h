@@ -13,12 +13,15 @@ public:
 
 protected:
     // Signal handlers
-    void on_login_success();
+    void on_login_success(const std::string& username, const std::string& server_ip, int port);
+
+    // bool on_window_delete_event(GdkEventAny* event); 
 
     // Member widgets
     Gtk::Stack m_Stack;
     LoginWindow m_LoginWindow;
     ClientGUI m_ClientGUI;
+    // ClientGUI m_ClientGUI;
 };
 
 #endif // MAINWINDOW_H
