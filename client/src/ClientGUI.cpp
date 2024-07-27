@@ -144,8 +144,7 @@ void ClientGUI::Start_Client(){
     //struct sockaddr_in client;  //ipv4 scokaddr struct for client
     client.sin_family=AF_INET; //ipv4
     client.sin_port = htons(port); //Port number of server
-    // client.sin_addr.s_addr= inet_addr(server_ip.c_str()); // ip address of server 
-    if((inet_pton(AF_INET, server_ip.c_str(), &(client.sin_addr)))<+0){
+    if((inet_pton(AF_INET, server_ip.c_str(), &(client.sin_addr)))<=0){
         perror("inet pton: ");
         close(client_socket);
         exit(-1);
