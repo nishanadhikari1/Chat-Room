@@ -7,9 +7,10 @@ class LoginWindow : public Gtk::Box {
 public:
     LoginWindow();
     virtual ~LoginWindow();
-
+    std::string get_Color();
     // Signal to indicate login success
-    sigc::signal<void, const std::string&, const std::string&, int> signal_login_success();
+    sigc::signal<void, const std::string&, const std::string&, int, const std::string& > signal_login_success();
+    std::string rgba_to_hex(const Gdk::RGBA& color);
 
 protected:
     // Signal handlers
@@ -26,12 +27,13 @@ protected:
     Gtk::Label m_LabelUsername;
     Gtk::Label m_LabelIPAddress;
     Gtk::Label m_LabelPort;
+    Gtk::ColorButton m_ColorButton;
 
     // Sub-division box
     Gtk::Box m_SubBox; // This will hold the username, IP address, port, and connect button
 
     // Signal
-    sigc::signal<void, const std::string&, const std::string&, int > m_signal_login_success;
+    sigc::signal<void, const std::string&, const std::string&, int, const std::string& > m_signal_login_success;
 };
 
 #endif // LOGINWINDOW_H
