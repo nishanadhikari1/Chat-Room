@@ -1,0 +1,64 @@
+#client_gui{
+    background-color: black;
+}
+#disconnect_button{
+    background: #d9534f;
+    color: white;
+    font-weight: bold;
+    /* padding: 5px 10px; */
+}
+
+#chat_display text{
+    background-color: #3f3f3f;
+    padding-left: 30px;
+}
+
+#message_entry {
+    border: 1px solid #ccc;
+    /* padding: 5px; */
+    background-color: #ffffff;
+}
+
+#send_button {
+    background: #5bc0de;
+    color: white;
+    font-weight: bold;
+    /* padding: 5px 10px; */
+}
+
+#text_box {
+    background-color: black;
+    /* padding: 10px; */
+}
+#scrolled_window {
+    background-color: #3f3f3f;
+    border-radius: 50px;
+
+}
+
+#client_list_box {
+    background-color: #f9f9f9;
+    /* padding: 10px; */
+}
+
+#info_box {
+    /* padding: 5px; */
+}
+
+#main_grid {
+    /* padding: 10px; */
+}
+
+#main_box {
+    /* padding: 10px; */
+}
+
+#client_tree_view {
+    background-color: red;
+    /* border: 1px solid #ccc; */
+}
+
+#chat_buffer{
+    background-color: black;
+    background: black;
+}
