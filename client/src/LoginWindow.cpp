@@ -4,6 +4,7 @@
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/stylecontext.h>
 #include <gdkmm/screen.h>
+#include<iomanip>
 
 LoginWindow::LoginWindow()
     : m_VBox(Gtk::ORIENTATION_VERTICAL),
@@ -67,6 +68,10 @@ LoginWindow::LoginWindow()
     m_SubBox.pack_start(m_LabelPort, Gtk::PACK_SHRINK);
     m_SubBox.pack_start(m_EntryPort, Gtk::PACK_SHRINK);
 
+    //Add the color buttoon
+     m_ColorButton.set_title("Select Color");
+    m_SubBox.pack_start(m_ColorButton, Gtk::PACK_SHRINK);
+
     // Initialize and configure the button box
     m_ButtonBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
     m_ButtonBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
@@ -112,16 +117,33 @@ void LoginWindow::on_button_connect_clicked()
     std::string username = m_EntryUsername.get_text();
     std::string server_ip = m_EntryIPAddress.get_text();
     int port = std::stoi(m_EntryPort.get_text());
+    std::string color = get_Color();
 
     std::cout << "Username: " << username << std::endl;
     std::cout << "IP Address: " << server_ip << std::endl;
     std::cout << "Port: " << port << std::endl;
+    std::cout << "Color: " <<color<<std::endl;
     // You can now use these details to connect to the server
     // Emit the login success signal
-    m_signal_login_success.emit(username, server_ip, port);
+    m_signal_login_success.emit(username, server_ip, port, color);
 }
 
-sigc::signal<void, const std::string&, const std::string&, int> LoginWindow::signal_login_success()
+sigc::signal<void, const std::string&, const std::string&, int, const std::string&> LoginWindow::signal_login_success()
 {
     return m_signal_login_success;
 }
+
+std::string LoginWindow::rgba_to_hex(const Gdk::RGBA& color) {
+    std::stringstream ss;
+    ss << "#" 
+       << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(color.get_red() * 255)
+       << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(color.get_green() * 255)
+       << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(color.get_blue() * 255);
+    return ss.str();
+}
+
+std::string LoginWindow::get_Color() {
+    Gdk::RGBA color = m_ColorButton.get_rgba();
+    return rgba_to_hex(color);
+}
+

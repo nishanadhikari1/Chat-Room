@@ -212,7 +212,8 @@ void ClientGUI::Recv_messages(int client_socket){
         else{
 
         //updaate the chat display with the recieved message
-        update_chat_display(Glib::ustring(message));
+        Glib::ustring messageWithColor = "<span foreground ='"+client_color + "'>" + message + "</span>";
+        update_chat_display(Glib::ustring(messageWithColor));
         }
     }
 }
@@ -236,7 +237,6 @@ void ClientGUI::update_client_list(const std::string& client_list){
     while (std::getline(ss, userName)) {
         if (!userName.empty()) {
             // Add each username to the TreeView
-
             add_userNameToList(Glib::ustring(userName));
         }
     }
@@ -244,14 +244,16 @@ void ClientGUI::update_client_list(const std::string& client_list){
 
 //update the text buffer with message
 void ClientGUI::update_chat_display(const Glib::ustring& message){
-    m_ChatBuffer->insert(m_ChatBuffer->end(), message + "\n");
+    m_ChatBuffer->insert_markup(m_ChatBuffer->end(), message + "\n");
 };
 
 //action for send button clicked
 void ClientGUI::on_send_button_clicked(){
     Glib::ustring message = m_MessageEntry.get_text();
-    update_chat_display("You: " +message);
-    Send_messages(client_socket, std::string(message));
+    Glib::ustring messageWithColor = "<span foreground='" +client_color +"'>"+username +": " + message + "</span>"; //pango markup
+    update_chat_display("<span foreground='"+ client_color +"'>You: " + message + "</span>");
+
+    Send_messages(client_socket, std::string(messageWithColor));
     m_MessageEntry.set_text("");
 }
 
@@ -265,6 +267,10 @@ void ClientGUI::setServerIP(const std::string& serverIP){
 
 void ClientGUI::setPort(int Port){
     this->port = Port;
+}
+
+void ClientGUI::setClientColor(std::string color){
+    this->client_color = color;
 }
 
 void ClientGUI::disconnect_from_server() {
