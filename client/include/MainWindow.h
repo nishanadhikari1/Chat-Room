@@ -13,7 +13,7 @@ public:
 
 protected:
     // Signal handlers
-    void on_login_success(const std::string& username, const std::string& server_ip, int port);
+    void on_login_success(const std::string& username, const std::string& server_ip, int port, const std::string&);
     void on_client_disconnected();
 
     // bool on_window_delete_event(GdkEventAny* event); 

@@ -22,12 +22,14 @@ public:
         void setUserName(const std::string& userName);
         void setServerIP(const std::string& serverIP);
         void setPort(int Port);
+        void setClientColor(std::string color);
         sigc::signal<void> signal_disconnected; //signal emit on disconnect button clicked
 
 private:
     int client_socket;
     std::string username;
     std::string server_ip;
+    std::string client_color;
     int port;
     std::thread thread_recv;
     std::atomic<bool> is_running;
