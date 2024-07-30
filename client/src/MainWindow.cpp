@@ -19,8 +19,8 @@ MainWindow::MainWindow()
     // Connect the login success signal to the slot
     m_LoginWindow.signal_login_success().connect(sigc::mem_fun(*this, &MainWindow::on_login_success));
 
-     // Connect the delete event to the handler
-    // signal_delete_event().connect(sigc::mem_fun(*this, &MainWindow::on_window_delete_event),false);
+    // Connect the signal_disconnect signal to the slot
+    m_ClientGUI.signal_disconnected.connect(sigc::mem_fun(*this, &MainWindow::on_client_disconnected));
 
     // Show the login window initially
     m_Stack.set_visible_child("login");
@@ -30,7 +30,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    
+    // Destructor implementation (if needed)
 }
 
 void MainWindow::on_login_success(const std::string& username, const std::string& server_ip, int port)
@@ -39,12 +39,19 @@ void MainWindow::on_login_success(const std::string& username, const std::string
     m_ClientGUI.setServerIP(server_ip);
     m_ClientGUI.setPort(port);
 
-    //set ClientGUI to visible
+    // Set ClientGUI to visible
     m_Stack.set_visible_child("client"); 
-    //start ClientGUI
+    // Start ClientGUI
     m_ClientGUI.Start_Client();
-    std::cout<<"started client network"<<std::endl;
+    std::cout << "Started client network" << std::endl;
 }
+
+void MainWindow::on_client_disconnected()
+{
+    m_Stack.set_visible_child("login");
+    std::cout << "Switched back to login window" << std::endl;
+}
+
 
 // bool MainWindow::on_window_delete_event(GdkEventAny* event)
 // {
