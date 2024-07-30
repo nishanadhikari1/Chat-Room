@@ -10,9 +10,6 @@
 #include <sstream>
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/stylecontext.h>
-#include <gdkmm/rgba.h>
-#include <gdkmm/general.h>
-
 
 #define MAX_LEN 200 // max number of bytes we can get at once
 
@@ -43,13 +40,12 @@ ClientGUI::ClientGUI()
     /*----------GUI COMPONENTS-----------*/
     set_name("client_gui");
 
-
     // Create a Toolbar
     m_ToolBarBox.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     m_ToolBarBox.set_name("toolbar");
     m_ToolBarBox.set_margin_top(5);
 
-    //toolbar items
+    // Toolbar items
     disconnect_button.set_label("Disconnect");
     disconnect_button.set_name("disconnect_button");
     disconnect_button.set_margin_end(10);
@@ -64,26 +60,26 @@ ClientGUI::ClientGUI()
     m_ChatDisplay.set_cursor_visible(false);
     m_ChatDisplay.set_name("chat_display");
 
-    //Create a TextBuffer(chatBuffer)
+    // Create a TextBuffer(chatBuffer)
     m_ChatBuffer = Gtk::TextBuffer::create();
-    //Set buffer to text view
+    // Set buffer to text view
     m_ChatDisplay.set_buffer(m_ChatBuffer);
-    m_ChatDisplay.set_wrap_mode(Gtk::WRAP_WORD); //set word wrap mode
+    m_ChatDisplay.set_wrap_mode(Gtk::WRAP_WORD); // set word wrap mode
 
-    //Message Entry Area
+    // Message Entry Area
     Gtk::Box *m_MessageEntryBox = Gtk::manage(new Gtk::Box());
     m_MessageEntryBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     m_MessageEntryBox->pack_start(m_MessageEntry, Gtk::PACK_EXPAND_WIDGET);
     m_MessageEntry.set_name("message_entry");
 
-    //add send message button
+    // Add send message button
     m_SendButton.set_margin_start(10);
-    m_SendButton.set_name("send_button"); 
+    m_SendButton.set_name("send_button");
     m_MessageEntryBox->pack_end(m_SendButton, Gtk::PACK_SHRINK);
     m_SendButton.signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_send_button_clicked));
     m_MessageEntry.signal_key_press_event().connect(sigc::mem_fun(*this, &ClientGUI::on_message_entry_key_press), false);
 
-    //chatbox (TextBox)
+    // Chatbox (TextBox)
     m_TextBox.pack_start(m_ToolBarBox, Gtk::PACK_SHRINK);
     m_TextBox.pack_start(m_ScrolledWindow, Gtk::PACK_SHRINK);
     m_ScrolledWindow.set_hexpand(true);
@@ -93,46 +89,49 @@ ClientGUI::ClientGUI()
     m_ScrolledWindow.add(m_ChatDisplay);
     m_ScrolledWindow.set_name("scrolled_window");
 
-    //Only show the scrollbars when necessary
+    // Only show the scrollbars when necessary
     m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    m_ScrolledWindow.set_size_request(1500,850);
-    //Add messageEntry to textbox
+    m_ScrolledWindow.set_size_request(1500, 850);
+    // Add messageEntry to textbox
     m_TextBox.pack_start(*m_MessageEntryBox, Gtk::PACK_SHRINK);
     m_TextBox.set_name("text_box");
 
-    //for client list box
+    // For client list box
     m_ClientListBox.pack_start(*InfoBox, Gtk::PACK_SHRINK);
     m_ClientListBox.set_name("client_list_box");
     InfoBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-    InfoBox->pack_start(*OnlineUsersCount,Gtk::PACK_SHRINK);
+    InfoBox->pack_start(*OnlineUsersCount, Gtk::PACK_SHRINK);
     InfoBox->set_name("info_box");
 
-    //create the tree Model
+    // Set the name of OnlineUsersCount for CSS styling
+    OnlineUsersCount->set_name("online_users_count");
+
+    // Create the tree Model
     m_ClientTreeModel = Gtk::ListStore::create(m_Columns);
     m_ClientTreeView.set_model(m_ClientTreeModel);
     m_ClientListBox.pack_start(m_ClientTreeView);
     m_ClientTreeView.set_name("client_tree_view");
 
-    //Append a column(for users) without title
-    m_ClientTreeView.append_column("",m_Columns.col_name);
+    // Append a column (for users) without title
+    m_ClientTreeView.append_column("", m_Columns.col_name);
 
-    //hide the column headers
+    // Hide the column headers
     m_ClientTreeView.set_headers_visible(false);
 
     // Add TextBox and ClientListBox to the grid
-    m_MainGrid.attach(m_TextBox, 0,0,1,1);
+    m_MainGrid.attach(m_TextBox, 0, 0, 1, 1);
     m_TextBox.set_margin_start(10);
-    m_ClientListBox.set_size_request(300,-1);
+    m_ClientListBox.set_size_request(300, -1);
     m_ClientListBox.set_margin_end(10);
     m_ClientListBox.set_vexpand(true);
-    m_MainGrid.attach_next_to(m_ClientListBox, m_TextBox, Gtk::POS_RIGHT,1,1);
+    m_MainGrid.attach_next_to(m_ClientListBox, m_TextBox, Gtk::POS_RIGHT, 1, 1);
     m_MainGrid.set_name("main_grid");
 
-    //Add grid to Main_Box
+    // Add grid to Main_Box
     m_MainGrid.set_column_spacing(10);
     m_MainBox.pack_start(m_MainGrid, Gtk::PACK_SHRINK);
 
-    //Add mainbox to window 
+    // Add mainbox to window
     pack_start(m_MainBox);
     m_MainBox.set_name("main_box");
 

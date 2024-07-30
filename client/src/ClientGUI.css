@@ -1,64 +1,66 @@
-#client_gui{
-    background-color: black;
-}
-#disconnect_button{
-    background: #d9534f;
-    color: white;
-    font-weight: bold;
-    /* padding: 5px 10px; */
+#client_gui {
+    background-color: #1a1a1a;
+    padding: 0;
+    margin: 0;
 }
 
-#chat_display text{
-    background-color: #3f3f3f;
-    padding-left: 30px;
+#disconnect_button {
+    background: #1e1e1e;
+    color: #fefefe;
+    font-weight: bold;
+    font-size: 16px;
+    border: none;
+    border-radius: 20px;
+}
+
+#chat_display text {
+    background-color:  #1e1e1e;
 }
 
 #message_entry {
     border: 1px solid #ccc;
-    /* padding: 5px; */
-    background-color: #ffffff;
+    background-color: transparent; /* Lighter background */
+    color: #fefefe; /* Darker text color */
+    border-radius: 10px;
 }
 
 #send_button {
-    background: #5bc0de;
-    color: white;
+    background: #1e1e1e;
+    color: #fefefe;
     font-weight: bold;
-    /* padding: 5px 10px; */
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
 }
 
 #text_box {
-    background-color: black;
-    /* padding: 10px; */
+    background-color: #3f3f3f; /* Slightly more opaque */
+    padding: 10px;
+    border-radius: 8px;
 }
-#scrolled_window {
-    background-color: #3f3f3f;
-    border-radius: 50px;
 
+#scrolled_window *{
+    font-weight: bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    border-radius: 2px;
 }
 
 #client_list_box {
-    background-color: #f9f9f9;
-    /* padding: 10px; */
-}
-
-#info_box {
-    /* padding: 5px; */
-}
-
-#main_grid {
-    /* padding: 10px; */
-}
-
-#main_box {
-    /* padding: 10px; */
+    background-color: #3f3f3f; /* Slightly more opaque */
+    border-radius: 8px;
 }
 
 #client_tree_view {
-    background-color: red;
-    /* border: 1px solid #ccc; */
+    background-color: #1e1e1e;
+    border: 1px solid #ccc;
+    color: #e0e0e0; /* Lighter text color */
+    font-size: 16px;
+    font-weight: bold;
 }
 
-#chat_buffer{
-    background-color: black;
-    background: black;
+#online_users_count {
+    font-weight: bold;
+    font-size: 18px; /* Slightly larger font size */
+    color: #388E3C; /* Darker green color */
 }

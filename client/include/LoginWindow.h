@@ -25,6 +25,7 @@ protected:
     Gtk::Box m_ButtonBox;
     Gtk::Button m_ButtonConnect;
     Gtk::Label m_LabelUsername;
+    Gtk::Label m_LabelColor;
     Gtk::Label m_LabelIPAddress;
     Gtk::Label m_LabelPort;
     Gtk::ColorButton m_ColorButton;

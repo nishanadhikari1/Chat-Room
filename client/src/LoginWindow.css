@@ -57,3 +57,6 @@
         5px 5px 10px rgba(0, 0, 0, 0.3), 
         6px 6px 12px rgba(0, 0, 0, 0.2); /* Softer, blurrier shadows for a 3D effect */
 }
+#color_button {
+    padding: 1px;
+}

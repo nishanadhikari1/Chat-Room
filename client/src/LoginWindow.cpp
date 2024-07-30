@@ -4,12 +4,12 @@
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/stylecontext.h>
 #include <gdkmm/screen.h>
-#include<iomanip>
+#include <iomanip>
 
 LoginWindow::LoginWindow()
     : m_VBox(Gtk::ORIENTATION_VERTICAL),
       m_SubBox(Gtk::ORIENTATION_VERTICAL),
-      m_ButtonBox(Gtk::ORIENTATION_HORIZONTAL) // Initialize button box
+      m_ButtonBox(Gtk::ORIENTATION_VERTICAL) // Initialize button box
 {
     // Load the CSS file
     auto cssProvider = Gtk::CssProvider::create();
@@ -68,19 +68,23 @@ LoginWindow::LoginWindow()
     m_SubBox.pack_start(m_LabelPort, Gtk::PACK_SHRINK);
     m_SubBox.pack_start(m_EntryPort, Gtk::PACK_SHRINK);
 
-    //Add the color buttoon
-     m_ColorButton.set_title("Select Color");
-    m_SubBox.pack_start(m_ColorButton, Gtk::PACK_SHRINK);
+    // Add the color button
+    m_LabelColor.set_text("Pick Color");
+    m_SubBox.pack_start(m_LabelColor, Gtk::PACK_SHRINK);
+    m_ColorButton.set_title("Select Color");
+    m_ColorButton.set_size_request(50, 50);
+    m_ColorButton.set_name("color_button");
+    m_ColorButton.set_rgba(Gdk::RGBA("255,255,255")); // Set default color to blue
 
     // Initialize and configure the button box
     m_ButtonBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
     m_ButtonBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
-    m_ButtonBox.set_spacing(10); // Add spacing inside button box
+    m_ButtonBox.set_spacing(6); // Add spacing inside button box
 
     m_ButtonConnect.set_label("Connect");
     m_ButtonConnect.set_name("button_connect");
     m_ButtonConnect.set_size_request(100, 30); // Set desired size for the button
-    m_ButtonConnect.set_margin_top(10); // Add top margin to the button for spacing
+    m_ButtonConnect.set_margin_top(1); // Add top margin to the button for spacing
 
     // Set text alignment for entry boxes
     m_EntryUsername.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
@@ -94,6 +98,7 @@ LoginWindow::LoginWindow()
 
     m_ButtonConnect.signal_clicked().connect(sigc::mem_fun(*this, &LoginWindow::on_button_connect_clicked));
 
+    m_ButtonBox.pack_start(m_ColorButton, Gtk::PACK_SHRINK);
     m_ButtonBox.pack_start(m_ButtonConnect, Gtk::PACK_SHRINK); // Ensure button is packed last
 
     // Add the button box to the sub-box
@@ -146,4 +151,3 @@ std::string LoginWindow::get_Color() {
     Gdk::RGBA color = m_ColorButton.get_rgba();
     return rgba_to_hex(color);
 }
-
