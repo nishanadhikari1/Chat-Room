@@ -113,8 +113,10 @@ void Server::handle_client(int client_socket, int id)
             broadcast_message(left_message, id);
             shared_print(color(id) + left_message + def_col);
             end_connection(id);
+            //update client list
+            clients.erase(std::next(clients.begin(),id));
             //boradcast clientlist
-            // broadcast_client_list();
+            broadcast_client_list();
             break;
         }
         if(bytes_received<0){
@@ -191,7 +193,7 @@ void Server::end_connection(int id)
         close(it->socket);
         clients.erase(it, clients.end());
     }
-    broadcast_client_list();
+    // broadcast_client_list();
 }
 
 std::string Server::color(int code)

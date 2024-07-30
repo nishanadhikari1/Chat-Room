@@ -20,19 +20,6 @@ ClientGUI::ClientGUI()
   exitflag(false)
 {
    /*----------GUI COMPONENTS-----------*/
-   // Create the MenuBar
-    auto menu_bar = Gtk::manage(new Gtk::MenuBar());
-    m_MainBox.pack_start(*menu_bar, Gtk::PACK_SHRINK);
-    
-    //file
-    auto file_menu = Gtk::manage(new Gtk::Menu());
-    auto file_item = Gtk::manage(new Gtk::MenuItem("File", true));
-    menu_bar->append(*file_item);
-
-    //quit
-    auto quit_menu = Gtk::manage(new Gtk::Menu());
-    auto quit_item = Gtk::manage(new Gtk::MenuItem("Quit", true));
-    menu_bar->append(*quit_item);
 
     // Create a Toolbar
     // auto toolbar = Gtk::manage(new Gtk::Toolbar());
@@ -40,9 +27,10 @@ ClientGUI::ClientGUI()
 
     //toolbar items
     auto option_button = Gtk::manage(new Gtk::ToolButton());
-    option_button->set_label("Options");
+    option_button->set_label("Disconnect");
     option_button->set_margin_end(10);
     m_ToolBarBox.pack_start(*option_button, Gtk::PACK_SHRINK);
+    option_button->signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_disconnect_button_clicked));
 
     auto search_label = Gtk::manage(new Gtk::Label());
     search_label->set_text("Search");
@@ -77,6 +65,7 @@ ClientGUI::ClientGUI()
     m_SendButton.set_margin_start(10);
     m_MessageEntryBox->pack_end(m_SendButton, Gtk::PACK_SHRINK);
     m_SendButton.signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_send_button_clicked));
+    m_MessageEntry.signal_key_press_event().connect(sigc::mem_fun(*this, &ClientGUI::on_message_entry_key_press), false);
 
     //chatbox (TextBox)
     m_TextBox.pack_start(m_ToolBarBox, Gtk::PACK_SHRINK);
@@ -89,7 +78,7 @@ ClientGUI::ClientGUI()
 
     //Only show the scrollbars when necessary
     m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    m_ScrolledWindow.set_size_request(1500,880);
+    m_ScrolledWindow.set_size_request(1500,915);
     //Add messageEntry to textbox
     m_TextBox.pack_start(*m_MessageEntryBox, Gtk::PACK_SHRINK);
     
@@ -175,7 +164,7 @@ void ClientGUI::Send_messages(int client_socket, const std::string& message){
 }
 
 void ClientGUI::Recv_messages(int client_socket){
-    char recv_buffer[MAX_LEN];//recv_buffer for holding broadcasted list when it comes
+    char recv_buffer[MAX_LEN];//recv_buffer for holding messages 
     while(!stop_recv_thread){
         fd_set read_fds;
         FD_ZERO(&read_fds);
@@ -263,6 +252,7 @@ void ClientGUI::on_send_button_clicked(){
     Glib::ustring message = m_MessageEntry.get_text();
     update_chat_display("You: " +message);
     Send_messages(client_socket, std::string(message));
+    m_MessageEntry.set_text("");
 }
 
 void ClientGUI::setUserName(const std::string& userName){
@@ -299,4 +289,27 @@ int ClientGUI::count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_
 
 void ClientGUI::update_online_count(int num){
     OnlineUsersCount->set_text("Online: "+std::to_string(num));
+}
+
+//handler for message entry enter key
+bool ClientGUI::on_message_entry_key_press(GdkEventKey* key_event)
+{
+    if (key_event->keyval == GDK_KEY_Return || key_event->keyval == GDK_KEY_KP_Enter)
+    {
+        Glib::ustring message = m_MessageEntry.get_text();
+        if (!message.empty())
+        {
+            on_send_button_clicked();
+            m_MessageEntry.set_text(""); // Clear the text entry
+        }
+        return true; //handled successfully
+    }
+    return false;
+}
+
+void ClientGUI::on_disconnect_button_clicked(){
+     disconnect_from_server(); // Disconnect from server
+
+    // Signal to MainWindow to switch back to the login window
+    signal_disconnected.emit();
 }

@@ -22,6 +22,7 @@ public:
         void setUserName(const std::string& userName);
         void setServerIP(const std::string& serverIP);
         void setPort(int Port);
+        sigc::signal<void> signal_disconnected; //signal emit on disconnect button clicked
 
 private:
     int client_socket;
@@ -73,11 +74,13 @@ protected:
     void update_client_list(const std::string& client_list);
 
     void on_send_button_clicked();
+    bool on_message_entry_key_press(GdkEventKey* key_event); //handler for enter key for message entry
     void on_connect_button_clicked();
     void update_chat_display(const Glib::ustring& message);
     void update_online_count(int num);
-    void On_Quit_Clicked();
+    void on_disconnect_button_clicked();
     int count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_store);
+
 };
 
 #endif //CLIENTGUI
