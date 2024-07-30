@@ -33,11 +33,12 @@ MainWindow::~MainWindow()
     // Destructor implementation (if needed)
 }
 
-void MainWindow::on_login_success(const std::string& username, const std::string& server_ip, int port)
+void MainWindow::on_login_success(const std::string& username, const std::string& server_ip, int port, const std::string& color)
 {
     m_ClientGUI.setUserName(username);
     m_ClientGUI.setServerIP(server_ip);
     m_ClientGUI.setPort(port);
+    m_ClientGUI.setClientColor(color);
 
     // Set ClientGUI to visible
     m_Stack.set_visible_child("client"); 
