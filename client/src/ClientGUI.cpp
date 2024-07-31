@@ -271,8 +271,15 @@ void ClientGUI::on_send_button_clicked(){
     Glib::ustring messageWithColor = "<span foreground='" +client_color +"'>"+username +": " + message + "</span>"; //pango markup
     update_chat_display("<span foreground='"+ client_color +"'>You: " + message + "</span>");
 
+    scroll_to_bottom();
+
     Send_messages(client_socket, std::string(messageWithColor));
     m_MessageEntry.set_text("");
+}
+void ClientGUI::scroll_to_bottom()
+{
+    auto adj = m_ScrolledWindow.get_vadjustment();
+    adj->set_value(adj->get_upper() - adj->get_page_size());
 }
 
 void ClientGUI::setUserName(const std::string& userName){

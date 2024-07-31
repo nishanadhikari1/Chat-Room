@@ -11,7 +11,14 @@
     font-size: 16px;
     border: none;
     border-radius: 20px;
+    transition: all 0.4s; /* Add transition for smooth hover effect */
+    padding: 5px 10px; /* Add padding for consistent look */
 }
+
+#disconnect_button:hover {
+    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); /* Add hover effect */
+}
+
 
 #chat_display text {
     background-color:  #1e1e1e;
@@ -19,9 +26,10 @@
 
 #message_entry {
     border: 1px solid #ccc;
-    background-color: transparent; /* Lighter background */
+    background-color: #2e2e2e; /* Adjusted to a lighter shade for better cursor visibility */
     color: #fefefe; /* Darker text color */
     border-radius: 10px;
+    caret-color: #fefefe; /* Ensures the cursor color is visible */
 }
 
 #send_button {
@@ -31,6 +39,12 @@
     font-size: 16px;
     border: none;
     border-radius: 12px;
+    transition: all 0.4s; /* Add transition for smooth hover effect */
+    padding: 5px 10px; /* Add padding for consistent look */
+}
+
+#send_button:hover {
+    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); /* Add hover effect */
 }
 
 #text_box {

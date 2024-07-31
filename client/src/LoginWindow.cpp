@@ -5,9 +5,12 @@
 #include <gtkmm/stylecontext.h>
 #include <gdkmm/screen.h>
 #include <iomanip>
+#include <regex>
+#include <string>
 
 LoginWindow::LoginWindow()
-    : m_VBox(Gtk::ORIENTATION_VERTICAL),
+    : Gtk::Box(Gtk::ORIENTATION_VERTICAL),
+      m_VBox(Gtk::ORIENTATION_VERTICAL),
       m_SubBox(Gtk::ORIENTATION_VERTICAL),
       m_ButtonBox(Gtk::ORIENTATION_VERTICAL) // Initialize button box
 {
@@ -117,19 +120,46 @@ LoginWindow::~LoginWindow()
 {
 }
 
+void LoginWindow::showErrorDialog(Gtk::Window& parent, const std::string& message) {
+    Gtk::MessageDialog dialog(parent, message, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+    dialog.run();
+    dialog.set_name("error_dialog");
+}
+
 void LoginWindow::on_button_connect_clicked()
 {
     std::string username = m_EntryUsername.get_text();
     std::string server_ip = m_EntryIPAddress.get_text();
-    int port = std::stoi(m_EntryPort.get_text());
+    std::string port_str = m_EntryPort.get_text();
     std::string color = get_Color();
 
-    std::cout << "Username: " << username << std::endl;
-    std::cout << "IP Address: " << server_ip << std::endl;
-    std::cout << "Port: " << port << std::endl;
-    std::cout << "Color: " <<color<<std::endl;
-    // You can now use these details to connect to the server
-    // Emit the login success signal
+    // Validate username
+    if (username.empty()) {
+        // Display error message
+        showErrorDialog(*dynamic_cast<Gtk::Window*>(get_toplevel()), "Username cannot be empty");
+        return;
+    }
+
+    // Validate IP address (use a regular expression or IP validation library)
+    if (!isValidIPAddress(server_ip)) {
+        showErrorDialog(*dynamic_cast<Gtk::Window*>(get_toplevel()), "Invalid IP address");
+        return;
+    }
+
+    // Validate port number (convert to integer and check range)
+    int port;
+    try {
+        port = std::stoi(port_str);
+        if (port < 0 || port > 65535) {
+            throw std::out_of_range("Invalid port number");
+        }
+    } catch (const std::invalid_argument& e) {
+        showErrorDialog(*dynamic_cast<Gtk::Window*>(get_toplevel()), "Invalid port number");
+        return;
+    } catch (const std::out_of_range& e) {
+        showErrorDialog(*dynamic_cast<Gtk::Window*>(get_toplevel()), "Port number out of range");
+        return;
+    }
     m_signal_login_success.emit(username, server_ip, port, color);
 }
 
@@ -138,7 +168,12 @@ sigc::signal<void, const std::string&, const std::string&, int, const std::strin
     return m_signal_login_success;
 }
 
-std::string LoginWindow::rgba_to_hex(const Gdk::RGBA& color) {
+bool LoginWindow::isValidIPAddress(const std::string& ip) {
+    std::regex pattern(R"((\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b))");
+    return std::regex_match(ip, pattern);
+}
+
+std::string LoginWindow::rgba_to_hex(const Gdk::RGBA& color) const {
     std::stringstream ss;
     ss << "#" 
        << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(color.get_red() * 255)
@@ -147,7 +182,7 @@ std::string LoginWindow::rgba_to_hex(const Gdk::RGBA& color) {
     return ss.str();
 }
 
-std::string LoginWindow::get_Color() {
+std::string LoginWindow::get_Color() const {
     Gdk::RGBA color = m_ColorButton.get_rgba();
     return rgba_to_hex(color);
 }
