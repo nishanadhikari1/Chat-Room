@@ -2,12 +2,14 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include<sys/select.h>
+#include <sys/select.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include<sstream>
+#include <sstream>
+#include <gtkmm/cssprovider.h>
+#include <gtkmm/stylecontext.h>
 
 #define MAX_LEN 200 // max number of bytes we can get at once
 
@@ -19,55 +21,65 @@ ClientGUI::ClientGUI()
   is_running(false),
   exitflag(false)
 {
-   /*----------GUI COMPONENTS-----------*/
+    // Load the CSS file
+    auto cssProvider = Gtk::CssProvider::create();
+    try
+    {
+        cssProvider->load_from_path("../client/src/ClientGUI.css");
+    }
+    catch (const Gtk::CssProviderError& e)
+    {
+        std::cerr << "Error loading CSS file: " << e.what() << std::endl;
+    }
+
+    // Get the default screen and add the CSS provider
+    auto screen = Gdk::Screen::get_default();
+    auto styleContext = Gtk::StyleContext::create();
+    styleContext->add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+    /*----------GUI COMPONENTS-----------*/
+    set_name("client_gui");
 
     // Create a Toolbar
-    // auto toolbar = Gtk::manage(new Gtk::Toolbar());
     m_ToolBarBox.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-
-    //toolbar items
-    auto option_button = Gtk::manage(new Gtk::ToolButton());
-    option_button->set_label("Disconnect");
-    option_button->set_margin_end(10);
-    m_ToolBarBox.pack_start(*option_button, Gtk::PACK_SHRINK);
-    option_button->signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_disconnect_button_clicked));
-
-    auto search_label = Gtk::manage(new Gtk::Label());
-    search_label->set_text("Search");
-    search_label->set_margin_end(10);
-    m_ToolBarBox.pack_start(*search_label, Gtk::PACK_SHRINK);
-  
-    auto search_entry = Gtk::manage(new Gtk::Entry());
-    m_ToolBarBox.pack_start(*search_entry, Gtk::PACK_SHRINK);
-
+    m_ToolBarBox.set_name("toolbar");
     m_ToolBarBox.set_margin_top(5);
-    //chatDisplay (TextView)
-    // m_ChatDisplay.set_size_request(1200,-1);
+
+    // Toolbar items
+    disconnect_button.set_label("Disconnect");
+    disconnect_button.set_name("disconnect_button");
+    disconnect_button.set_margin_end(10);
+    m_ToolBarBox.pack_start(disconnect_button, Gtk::PACK_SHRINK);
+    disconnect_button.signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_disconnect_button_clicked));
+
     m_ChatDisplay.set_halign(Gtk::ALIGN_FILL);
     m_ChatDisplay.set_valign(Gtk::ALIGN_FILL);
     m_ChatDisplay.set_hexpand(true);
     m_ChatDisplay.set_vexpand(true);
     m_ChatDisplay.set_editable(false);
     m_ChatDisplay.set_cursor_visible(false);
+    m_ChatDisplay.set_name("chat_display");
 
-    //Create a TextBuffer(chatBuffer)
+    // Create a TextBuffer(chatBuffer)
     m_ChatBuffer = Gtk::TextBuffer::create();
-    //Set buffer to text view
+    // Set buffer to text view
     m_ChatDisplay.set_buffer(m_ChatBuffer);
-    m_ChatDisplay.set_wrap_mode(Gtk::WRAP_WORD); //set word wrap mode
+    m_ChatDisplay.set_wrap_mode(Gtk::WRAP_WORD); // set word wrap mode
 
-    //Message Entry Area
+    // Message Entry Area
     Gtk::Box *m_MessageEntryBox = Gtk::manage(new Gtk::Box());
     m_MessageEntryBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
     m_MessageEntryBox->pack_start(m_MessageEntry, Gtk::PACK_EXPAND_WIDGET);
+    m_MessageEntry.set_name("message_entry");
 
-    //add send message button
+    // Add send message button
     m_SendButton.set_margin_start(10);
+    m_SendButton.set_name("send_button");
     m_MessageEntryBox->pack_end(m_SendButton, Gtk::PACK_SHRINK);
     m_SendButton.signal_clicked().connect(sigc::mem_fun(*this, &ClientGUI::on_send_button_clicked));
     m_MessageEntry.signal_key_press_event().connect(sigc::mem_fun(*this, &ClientGUI::on_message_entry_key_press), false);
 
-    //chatbox (TextBox)
+    // Chatbox (TextBox)
     m_TextBox.pack_start(m_ToolBarBox, Gtk::PACK_SHRINK);
     m_TextBox.pack_start(m_ScrolledWindow, Gtk::PACK_SHRINK);
     m_ScrolledWindow.set_hexpand(true);
@@ -75,48 +87,56 @@ ClientGUI::ClientGUI()
     m_ScrolledWindow.set_margin_bottom(10);
     m_ScrolledWindow.set_margin_top(10);
     m_ScrolledWindow.add(m_ChatDisplay);
+    m_ScrolledWindow.set_name("scrolled_window");
 
-    //Only show the scrollbars when necessary
+    // Only show the scrollbars when necessary
     m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    m_ScrolledWindow.set_size_request(1500,915);
-    //Add messageEntry to textbox
+    m_ScrolledWindow.set_size_request(1500, 850);
+    // Add messageEntry to textbox
     m_TextBox.pack_start(*m_MessageEntryBox, Gtk::PACK_SHRINK);
-    
-    //for client list box
-    m_ClientListBox.pack_start(*InfoBox, Gtk::PACK_SHRINK);
-    InfoBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-    InfoBox->pack_start(*OnlineUsersCount,Gtk::PACK_SHRINK);
+    m_TextBox.set_name("text_box");
 
-    //create the tree Model
+    // For client list box
+    m_ClientListBox.pack_start(*InfoBox, Gtk::PACK_SHRINK);
+    m_ClientListBox.set_name("client_list_box");
+    InfoBox->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+    InfoBox->pack_start(*OnlineUsersCount, Gtk::PACK_SHRINK);
+    InfoBox->set_name("info_box");
+
+    // Set the name of OnlineUsersCount for CSS styling
+    OnlineUsersCount->set_name("online_users_count");
+
+    // Create the tree Model
     m_ClientTreeModel = Gtk::ListStore::create(m_Columns);
     m_ClientTreeView.set_model(m_ClientTreeModel);
     m_ClientListBox.pack_start(m_ClientTreeView);
+    m_ClientTreeView.set_name("client_tree_view");
 
-    //Append a column(for users) without title
-    m_ClientTreeView.append_column("",m_Columns.col_name);
+    // Append a column (for users) without title
+    m_ClientTreeView.append_column("", m_Columns.col_name);
 
-    //hide the column headers
+    // Hide the column headers
     m_ClientTreeView.set_headers_visible(false);
 
     // Add TextBox and ClientListBox to the grid
-    m_MainGrid.attach(m_TextBox, 0,0,1,1);
+    m_MainGrid.attach(m_TextBox, 0, 0, 1, 1);
     m_TextBox.set_margin_start(10);
-    // m_TextBox.set_margin_end(10);
-    m_ClientListBox.set_size_request(300,-1);
+    m_ClientListBox.set_size_request(300, -1);
     m_ClientListBox.set_margin_end(10);
     m_ClientListBox.set_vexpand(true);
-    m_MainGrid.attach_next_to(m_ClientListBox, m_TextBox, Gtk::POS_RIGHT,1,1);
+    m_MainGrid.attach_next_to(m_ClientListBox, m_TextBox, Gtk::POS_RIGHT, 1, 1);
+    m_MainGrid.set_name("main_grid");
 
-    //Add grid to Main_Box
+    // Add grid to Main_Box
     m_MainGrid.set_column_spacing(10);
     m_MainBox.pack_start(m_MainGrid, Gtk::PACK_SHRINK);
 
-    //Add mainbox to window 
+    // Add mainbox to window
     pack_start(m_MainBox);
+    m_MainBox.set_name("main_box");
 
     show_all_children();
-    
-};
+}
 
 ClientGUI::~ClientGUI(){
     disconnect_from_server();
@@ -129,12 +149,11 @@ void ClientGUI::Start_Client(){
     }
 
     if((client_socket=socket(AF_INET,SOCK_STREAM,0))==-1){
-        perror("scoket: ");
+        perror("socket: ");
         exit(-1);
     }
-    std::cout<<"Created Socket successfuly"<<std::endl;
+    std::cout<<"Created Socket successfully"<<std::endl;
 
-    //struct sockaddr_in client;  //ipv4 scokaddr struct for client
     client.sin_family=AF_INET; //ipv4
     client.sin_port = htons(port); //Port number of server
     if((inet_pton(AF_INET, server_ip.c_str(), &(client.sin_addr)))<=0){
@@ -153,7 +172,6 @@ void ClientGUI::Start_Client(){
     thread_recv = std::thread(&ClientGUI::Recv_messages, this, client_socket);
 
     is_running = true;
-
 }
 
 void ClientGUI::Connect_to_server(){
@@ -170,7 +188,7 @@ void ClientGUI::Send_messages(int client_socket, const std::string& message){
 }
 
 void ClientGUI::Recv_messages(int client_socket){
-    char recv_buffer[MAX_LEN];//recv_buffer for holding messages 
+    char recv_buffer[MAX_LEN]; //recv_buffer for holding messages 
     while(!stop_recv_thread){
         fd_set read_fds;
         FD_ZERO(&read_fds);
@@ -193,7 +211,7 @@ void ClientGUI::Recv_messages(int client_socket){
         }
 
         if (FD_ISSET(client_socket, &read_fds)) {
-        memset(recv_buffer, 0, sizeof(recv_buffer)); //clear buffer before each recieve
+        memset(recv_buffer, 0, sizeof(recv_buffer)); //clear buffer before each receive
         int bytes_received = recv(client_socket, recv_buffer, (sizeof(recv_buffer)), 0); //client list recv
 
         if (bytes_received <= 0) {
@@ -205,8 +223,8 @@ void ClientGUI::Recv_messages(int client_socket){
             is_running = false;
             break;
         }
-        recv_buffer[bytes_received] = '\0'; //terminate the c style string
-        std::string message(recv_buffer); //convert to std string
+        recv_buffer[bytes_received] = '\0'; //terminate the C-style string
+        std::string message(recv_buffer); //convert to std::string
 
         if (message.find("#USERLIST") == 0) {
             // clientlist update
@@ -225,19 +243,19 @@ void ClientGUI::Recv_messages(int client_socket){
 }
 }
 
-//add online users in treeView
+//add online users in TreeView
 void ClientGUI::add_userNameToList(const Glib::ustring &userName){
     Gtk::TreeModel::Row row = *(m_ClientTreeModel->append());
     row[m_Columns.col_name] = userName;
 }
 
-//update clientlist in client tree view
+//update clientlist in client TreeView
 void ClientGUI::update_client_list(const std::string& client_list){
     //clear the existing list
     m_ClientTreeModel->clear();
 
     //split the list to get users
-    std::istringstream ss(client_list); //isringstream treat string like input stream like std::cin for console
+    std::istringstream ss(client_list); //istringstream treats string like input stream
     std::string userName;
 
     while (std::getline(ss, userName)) {
@@ -259,8 +277,15 @@ void ClientGUI::on_send_button_clicked(){
     Glib::ustring messageWithColor = "<span foreground='" +client_color +"'>"+username +": " + message + "</span>"; //pango markup
     update_chat_display("<span foreground='"+ client_color +"'>You: " + message + "</span>");
 
+    scroll_to_bottom();
+
     Send_messages(client_socket, std::string(messageWithColor));
     m_MessageEntry.set_text("");
+}
+void ClientGUI::scroll_to_bottom()
+{
+    auto adj = m_ScrolledWindow.get_vadjustment();
+    adj->set_value(adj->get_upper() - adj->get_page_size());
 }
 
 void ClientGUI::setUserName(const std::string& userName){
@@ -305,7 +330,7 @@ int ClientGUI::count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_
 }
 
 void ClientGUI::update_online_count(int num){
-    OnlineUsersCount->set_text("Online: "+std::to_string(num));
+    OnlineUsersCount->set_text("Online: " + std::to_string(num));
 }
 
 //handler for message entry enter key

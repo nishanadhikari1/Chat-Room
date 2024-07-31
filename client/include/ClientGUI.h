@@ -44,9 +44,9 @@ private:
 protected:
     //Gui components
     Gtk::Box m_MainBox;
-    Gtk::MenuBar m_Menu;
     Gtk::Grid m_MainGrid; //two sections
     
+    Gtk::Button disconnect_button;
     //TextBox Items
     Gtk::Box m_TextBox;
     Gtk::Box m_ToolBarBox;
@@ -83,6 +83,7 @@ protected:
     void update_chat_display(const Glib::ustring& message);
     void update_online_count(int num);
     void on_disconnect_button_clicked();
+    void scroll_to_bottom();
     int count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_store);
 
 };
