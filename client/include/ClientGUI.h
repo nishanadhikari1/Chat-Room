@@ -23,6 +23,8 @@ public:
         void setServerIP(const std::string& serverIP);
         void setPort(int Port);
         void setClientColor(std::string color);
+        void reset();
+        void send_username_to_server();
         sigc::signal<void> signal_disconnected; //signal emit on disconnect button clicked
 
 private:

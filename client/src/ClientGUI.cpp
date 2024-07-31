@@ -124,6 +124,10 @@ ClientGUI::~ClientGUI(){
 
 //Start Client 
 void ClientGUI::Start_Client(){
+     if (client_socket != -1) {
+        close(client_socket); // Ensure the socket is closed before starting a new connection
+    }
+
     if((client_socket=socket(AF_INET,SOCK_STREAM,0))==-1){
         perror("scoket: ");
         exit(-1);
@@ -142,7 +146,8 @@ void ClientGUI::Start_Client(){
 
     Connect_to_server();
 
-    send(client_socket, username.c_str(), username.length(), 0); //send the name of client to server after connecting 
+    send_username_to_server(); //send the name of client to server after connecting 
+     std::cout << "Username sent to server: " << username << std::endl;
 
     //start receive thread 
     thread_recv = std::thread(&ClientGUI::Recv_messages, this, client_socket);
@@ -152,6 +157,7 @@ void ClientGUI::Start_Client(){
 }
 
 void ClientGUI::Connect_to_server(){
+    if(client_socket)
     if((connect(client_socket, (struct sockaddr*)&client, sizeof(struct sockaddr_in)))==-1){
         perror("connect: ");
         exit(-1);
@@ -273,17 +279,22 @@ void ClientGUI::setClientColor(std::string color){
     this->client_color = color;
 }
 
+
 void ClientGUI::disconnect_from_server() {
-    stop_recv_thread = true; // Signal the thread to stop
-
-    if (thread_recv.joinable()) {
-        thread_recv.join(); // Wait for the thread to finish
+    if (is_running) {
+        stop_recv_thread = true;
+        if (thread_recv.joinable()) {
+            thread_recv.join();
+        }
+        if (client_socket != -1) {
+            close(client_socket);
+            client_socket = -1;
+        }
+        is_running = false;
+         m_ClientTreeModel->clear(); // Clear client list
+        std::cout << "Disconnected from server" << std::endl;
     }
-
-    close(client_socket); // Close the socket
-    std::cout << "disconnected" << std::endl;
 }
-
 // count online users
 int ClientGUI::count_online_users(const Glib::RefPtr<Gtk::ListStore>& user_list_store) {
     int count = 0;
@@ -318,4 +329,29 @@ void ClientGUI::on_disconnect_button_clicked(){
 
     // Signal to MainWindow to switch back to the login window
     signal_disconnected.emit();
+}
+
+void ClientGUI::reset() {
+    // Clear the chat display and the client list
+    m_ChatBuffer->set_text("");
+    // m_ClientTreeModel->clear();
+
+    // Clear the message entry field
+    m_MessageEntry.set_text("");
+
+    // Reset user-specific information
+    username.clear();
+    server_ip.clear();
+    port = 0;
+    client_color.clear();
+
+    // Reset flags
+    is_running = false;
+    exitflag = false;
+}
+
+void ClientGUI::send_username_to_server() {
+    if (client_socket != -1) {
+        send(client_socket, username.c_str(), username.length(), 0);
+    }
 }

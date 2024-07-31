@@ -89,6 +89,7 @@ void Server::handle_client(int client_socket, int id)
     int bytes_received = recv(client_socket, name, (sizeof(name)-1), 0);
     if (bytes_received <= 0)
     {
+        perror("recv username");
         close(client_socket);
         return;
     }
@@ -184,16 +185,18 @@ void Server::broadcast_message(int num, int sender_id)
 void Server::end_connection(int id)
 {
     std::lock_guard<std::mutex> guard(clients_mtx);
-    auto it = std::remove_if(clients.begin(), clients.end(), [id](const client& client) {
+    auto it = std::find_if(clients.begin(), clients.end(), [id](const client& client) {
         return client.id == id;
     });
+
     if (it != clients.end())
     {
         it->th.detach();
         close(it->socket);
-        clients.erase(it, clients.end());
+        clients.erase(it);
     }
 }
+
 
 std::string Server::color(int code)
 {
@@ -216,6 +219,7 @@ void Server::broadcast_client_list()
     broadcast_message(client_list, -1); //-1 will never match any client id
     
 }
+
 
 
 
