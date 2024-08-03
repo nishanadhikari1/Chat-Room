@@ -14,7 +14,7 @@ The ChatRoom application is a C++ project that creates a simple chat room where 
 
 - Linux operating system
 - CMake
-- GTKmm 3.0
+- GTKmm 4.0
 
 ## Building the Project
 
