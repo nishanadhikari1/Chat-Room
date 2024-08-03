@@ -31,6 +31,7 @@ MainWindow::MainWindow()
 
 void MainWindow::on_login_success(const std::string& username, const std::string& server_ip, int port, const std::string& color)
 {
+     m_ClientGUI.reset();
     m_ClientGUI.setUserName(username);
     m_ClientGUI.setServerIP(server_ip);
     m_ClientGUI.setPort(port);
