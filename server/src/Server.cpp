@@ -95,8 +95,6 @@ void Server::handle_client(int client_socket, int id)
     set_name(id, name);
 
     std::string welcome_message = std::string(name) + " has joined";
-    // broadcast_message("#NULL", id);
-    // broadcast_message(id, id);
     broadcast_message(welcome_message, id);
     shared_print(color(id) + welcome_message + def_col);
 
@@ -108,14 +106,9 @@ void Server::handle_client(int client_socket, int id)
         bytes_received = recv(client_socket, str, sizeof(str), 0);
         if (bytes_received == 0){
             std::string left_message = std::string(name) + " has left";
-            // broadcast_message("#NULL", id);
-            // broadcast_message(id, id);
             broadcast_message(left_message, id);
             shared_print(color(id) + left_message + def_col);
             end_connection(id);
-            // //update client list
-            // clients.erase(std::next(clients.begin(),id));
-            //boradcast clientlist
             broadcast_client_list();
             break;
         }
@@ -123,13 +116,10 @@ void Server::handle_client(int client_socket, int id)
             perror("recieve error: ");
         }
 
-        // broadcast_message(std::string(name), id);
-        // broadcast_message(id, id);
 
         str[bytes_received] = '\0'; // Null terminate
         std::string sent_message = std::string(str);
         broadcast_message(sent_message, id);
-        // shared_print(color(id) + def_col + str);
     }
 }
 

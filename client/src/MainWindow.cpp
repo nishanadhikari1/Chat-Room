@@ -28,10 +28,6 @@ MainWindow::MainWindow()
     show_all_children();
 }
 
-MainWindow::~MainWindow()
-{
-    // Destructor implementation (if needed)
-}
 
 void MainWindow::on_login_success(const std::string& username, const std::string& server_ip, int port, const std::string& color)
 {
@@ -53,14 +49,3 @@ void MainWindow::on_client_disconnected()
     std::cout << "Switched back to login window" << std::endl;
 }
 
-
-// bool MainWindow::on_window_delete_event(GdkEventAny* event)
-// {
-//     std::cout << "Main window is closing, disconnecting the client" << std::endl;
-//      std::thread disconnect_thread([this]() {
-//         m_ClientGUI.disconnect_from_server(); // Disconnect the client
-//      });
-//         disconnect_thread.detach(); // Detach the disconnection thread to avoid blocking
-    
-//     return false; 
-// }

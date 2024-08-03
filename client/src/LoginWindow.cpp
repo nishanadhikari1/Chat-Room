@@ -36,30 +36,30 @@ LoginWindow::LoginWindow()
     set_border_width(0);
 
     // Configure and add the VBox
-    m_VBox.set_halign(Gtk::ALIGN_CENTER); // Center VBox horizontally
-    m_VBox.set_valign(Gtk::ALIGN_CENTER); // Center VBox vertically
-    m_VBox.set_size_request(400, 500); // Set size for VBox
+    m_VBox.set_halign(Gtk::ALIGN_CENTER); 
+    m_VBox.set_valign(Gtk::ALIGN_CENTER); 
+    m_VBox.set_size_request(400, 500);
 
     // Add title
     m_TitleLabel.set_text("Connect & Chat");
-    m_TitleLabel.set_name("title_label"); // Optional: set CSS class for styling
+    m_TitleLabel.set_name("title_label");
     m_TitleLabel.set_margin_bottom(20);
 
-    m_VBox.pack_start(m_TitleLabel, Gtk::PACK_SHRINK); // Add title to VBox
+    m_VBox.pack_start(m_TitleLabel, Gtk::PACK_SHRINK); 
 
     // Configure the sub-box
     m_SubBox.set_border_width(0);
     m_SubBox.set_name("sub_box");
     m_SubBox.set_size_request(400, 300); 
-    m_SubBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
-    m_SubBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
+    m_SubBox.set_halign(Gtk::ALIGN_CENTER); 
+    m_SubBox.set_valign(Gtk::ALIGN_CENTER); 
     m_SubBox.set_spacing(10); // 
 
     // Add elements to the sub-box
     m_LabelUsername.set_text("Username:");
     m_EntryUsername.set_placeholder_text("Enter username");
-    m_SubBox.pack_start(m_LabelUsername, Gtk::PACK_SHRINK); // PACK_SHRINK to keep label size small
-    m_SubBox.pack_start(m_EntryUsername, Gtk::PACK_SHRINK); // PACK_SHRINK to keep entry size small
+    m_SubBox.pack_start(m_LabelUsername, Gtk::PACK_SHRINK); 
+    m_SubBox.pack_start(m_EntryUsername, Gtk::PACK_SHRINK); 
 
     m_LabelIPAddress.set_text("IP Address:");
     m_EntryIPAddress.set_placeholder_text("Enter IP address");
@@ -75,24 +75,24 @@ LoginWindow::LoginWindow()
     m_LabelColor.set_text("Pick Color");
     m_SubBox.pack_start(m_LabelColor, Gtk::PACK_SHRINK);
     m_ColorButton.set_title("Select Color");
-    m_ColorButton.set_size_request(50, 50);
     m_ColorButton.set_name("color_button");
-    m_ColorButton.set_rgba(Gdk::RGBA("255,255,255")); // Set default color to blue
+    m_ColorButton.set_rgba(Gdk::RGBA("255,255,255")); // Set default color to white
 
     // Initialize and configure the button box
-    m_ButtonBox.set_halign(Gtk::ALIGN_CENTER); // Center horizontally
-    m_ButtonBox.set_valign(Gtk::ALIGN_CENTER); // Center vertically
-    m_ButtonBox.set_spacing(6); // Add spacing inside button box
+    m_ButtonBox.set_halign(Gtk::ALIGN_CENTER);
+    m_ButtonBox.set_valign(Gtk::ALIGN_CENTER); 
+    m_ButtonBox.set_spacing(6); 
 
+    //Configure Connect Button
     m_ButtonConnect.set_label("Connect");
     m_ButtonConnect.set_name("button_connect");
-    m_ButtonConnect.set_size_request(100, 30); // Set desired size for the button
-    m_ButtonConnect.set_margin_top(1); // Add top margin to the button for spacing
+    m_ButtonConnect.set_size_request(100, 30); 
+    m_ButtonConnect.set_margin_top(1); 
 
     // Set text alignment for entry boxes
-    m_EntryUsername.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
-    m_EntryIPAddress.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
-    m_EntryPort.set_alignment(Gtk::ALIGN_CENTER); // Align text to the start
+    m_EntryUsername.set_alignment(Gtk::ALIGN_CENTER); 
+    m_EntryIPAddress.set_alignment(Gtk::ALIGN_CENTER); 
+    m_EntryPort.set_alignment(Gtk::ALIGN_CENTER); 
 
     // CSS classes for input boxes
     m_EntryUsername.get_style_context()->add_class("entry");
@@ -102,13 +102,13 @@ LoginWindow::LoginWindow()
     m_ButtonConnect.signal_clicked().connect(sigc::mem_fun(*this, &LoginWindow::on_button_connect_clicked));
 
     m_ButtonBox.pack_start(m_ColorButton, Gtk::PACK_SHRINK);
-    m_ButtonBox.pack_start(m_ButtonConnect, Gtk::PACK_SHRINK); // Ensure button is packed last
+    m_ButtonBox.pack_start(m_ButtonConnect, Gtk::PACK_SHRINK); 
 
     // Add the button box to the sub-box
-    m_SubBox.pack_start(m_ButtonBox, Gtk::PACK_SHRINK); // Ensure button box is packed last
+    m_SubBox.pack_start(m_ButtonBox, Gtk::PACK_SHRINK); 
 
     // Add the sub-box to the VBox
-    m_VBox.pack_start(m_SubBox, Gtk::PACK_EXPAND_WIDGET); // Ensure VBox expands
+    m_VBox.pack_start(m_SubBox, Gtk::PACK_EXPAND_WIDGET); 
 
     // Finally, add the VBox to the window
     pack_start(m_VBox, Gtk::PACK_EXPAND_WIDGET);

@@ -11,12 +11,12 @@
     font-size: 16px;
     border: none;
     border-radius: 20px;
-    transition: all 0.4s; /* Add transition for smooth hover effect */
-    padding: 5px 10px; /* Add padding for consistent look */
+    transition: all 0.4s; 
+    padding: 5px 10px; 
 }
 
 #disconnect_button:hover {
-    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); /* Add hover effect */
+    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); 
 }
 
 
@@ -26,10 +26,10 @@
 
 #message_entry {
     border: 1px solid #ccc;
-    background-color: #2e2e2e; /* Adjusted to a lighter shade for better cursor visibility */
-    color: #fefefe; /* Darker text color */
+    background-color: #2e2e2e; 
+    color: #fefefe; 
     border-radius: 10px;
-    caret-color: #fefefe; /* Ensures the cursor color is visible */
+    caret-color: #fefefe; 
 }
 
 #send_button {
@@ -39,16 +39,16 @@
     font-size: 16px;
     border: none;
     border-radius: 12px;
-    transition: all 0.4s; /* Add transition for smooth hover effect */
-    padding: 5px 10px; /* Add padding for consistent look */
+    transition: all 0.4s; 
+    padding: 5px 10px; 
 }
 
 #send_button:hover {
-    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); /* Add hover effect */
+    box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.15); 
 }
 
 #text_box {
-    background-color: #3f3f3f; /* Slightly more opaque */
+    background-color: #3f3f3f; 
     padding: 10px;
     border-radius: 8px;
 }
@@ -61,20 +61,20 @@
 }
 
 #client_list_box {
-    background-color: #3f3f3f; /* Slightly more opaque */
+    background-color: #3f3f3f; 
     border-radius: 8px;
 }
 
 #client_tree_view {
     background-color: #1e1e1e;
     border: 1px solid #ccc;
-    color: #e0e0e0; /* Lighter text color */
+    color: #e0e0e0; 
     font-size: 16px;
     font-weight: bold;
 }
 
 #online_users_count {
     font-weight: bold;
-    font-size: 18px; /* Slightly larger font size */
-    color: #388E3C; /* Darker green color */
+    font-size: 18px; 
+    color: #388E3C;
 }

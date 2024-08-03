@@ -11,7 +11,7 @@
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/stylecontext.h>
 
-#define MAX_LEN 200 // max number of bytes we can get at once
+#define MAX_LEN 200 // max number of bytes at once
 
 ClientGUI::ClientGUI()
 : m_SendButton("Send"),
@@ -62,7 +62,6 @@ ClientGUI::ClientGUI()
 
     // Create a TextBuffer(chatBuffer)
     m_ChatBuffer = Gtk::TextBuffer::create();
-    // Set buffer to text view
     m_ChatDisplay.set_buffer(m_ChatBuffer);
     m_ChatDisplay.set_wrap_mode(Gtk::WRAP_WORD); // set word wrap mode
 

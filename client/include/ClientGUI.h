@@ -37,7 +37,6 @@ private:
 
     struct sockaddr_in client;  //ipv4 scokaddr struct for client
     bool exitflag;
-    // std::mutex chat_mutex; //for chat buffer
 
 protected:
     //Gui components
