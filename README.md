@@ -16,14 +16,26 @@ The ChatRoom application is a C++ project that creates a simple chat room where 
 - CMake
 - GTKmm 4.0
 
-## Building the Project
+## Installation
 
-1. Clone the repository:
-    ```bash
+To install and run chatroom, follow following steps:
+
+### Clone the repository
+     ```bash
     git clone https://github.com/yourusername/Chat-Room.git
     cd Chat-Room
     ```
-
+### Install CMake
+     ```bash
+     sudo apt-get update
+     sudo apt-get install -y cmake
+    ```
+### Install GTKmm 4.0
+    ```bash
+     sudo apt-get update
+     sudo apt-get install -y libgtkmm-4.0-dev
+     ```
+## Building the Project
 2. Build Client And Server
     ```bash
     mkdir build
