@@ -1,7 +1,7 @@
 # Chat-Room
 
 
-![SS](client/assets/screenshots/Login-Page.png)
+![SS](client/assets/screenshots/LoginPage.png)
 ![SS](client/assets/screenshots/ClientGUI.png)
 
 ## About 
